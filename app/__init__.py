@@ -6,7 +6,7 @@ from flask import Flask
 from flask_socketio import SocketIO
 from logging.handlers import RotatingFileHandler
 from celery import Celery
-from geofinder.database import Database
+from geotracker.database import Database
 
 app = Flask(__name__)
 app.config.from_object('config')

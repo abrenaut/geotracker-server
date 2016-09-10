@@ -3,7 +3,8 @@
 import unittest
 import os
 
-from geofinder.database import Database
+from geotracker.database import Database
+from geotracker.position import Position
 
 DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,22 +20,17 @@ class TestDatabase(unittest.TestCase):
         os.remove(database_path)
 
     def test_store_position(self):
-        database.store_position(
-                {'latitude': 47.658236, 'timestamp': 1473361865, 'longitude': -2.7608470000000125, 'device_id': 'a'})
+        database.store_position(Position('uid', 47, -2.3, 1473361865))
 
     def test_get_last_positions(self):
-        database.store_position(
-                {'latitude': 0, 'timestamp': 2, 'longitude': 0, 'device_id': 'a'})
-        database.store_position(
-                {'latitude': 0, 'timestamp': 3, 'longitude': 0, 'device_id': 'a'})
-        database.store_position(
-                {'latitude': 0, 'timestamp': 4, 'longitude': 0, 'device_id': 'b'})
-        database.store_position(
-                {'latitude': 0, 'timestamp': 1, 'longitude': 0, 'device_id': 'c'})
+        database.store_position(Position('a', 0, 0, 2))
+        database.store_position(Position('a', 0, 0, 3))
+        database.store_position(Position('b', 0, 0, 4))
+        database.store_position(Position('c', 0, 0, 1))
 
         last_positions = database.get_last_positions(1)
 
         self.assertEquals(len(last_positions), 2)
-        self.assertEquals(last_positions[0]['device_id'], 'b')
-        self.assertEquals(last_positions[1]['device_id'], 'a')
-        self.assertEquals(last_positions[1]['timestamp'], 3)
+        self.assertEquals(last_positions[0]['device_id'], 'a')
+        self.assertEquals(last_positions[1]['device_id'], 'b')
+        self.assertEquals(last_positions[0]['timestamp'], 3)

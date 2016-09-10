@@ -8,11 +8,27 @@ def store_position(position):
     database.store_position(position)
 
 
-def update_positions(interval):
-    while True:
-        updated_positions = database.get_last_positions(0)
+class UpdatePositionTask:
+    def __init__(self, interval):
+        self.interval = interval
+        self.task = None
+        self.new_positions = []
 
-        socketio.emit('positions_update', {'positions' : updated_positions})
+    def is_started(self):
+        return self.task is not None
 
-        # Give the players some time to answer
-        socketio.sleep(interval)
+    def start(self):
+        self.task = socketio.start_background_task(target=self.run)
+
+    def run(self):
+        while True:
+
+            if self.new_positions:
+                # Send the new positions to clients
+                socketio.emit('positions_update',
+                              {'positions': [position.__dict__ for position in self.new_positions]})
+                # Reset the list of new positions
+                del self.new_positions[:]
+
+            # Wait for a while before sending positions updates
+            socketio.sleep(self.interval)

@@ -1,3 +1,1 @@
-# Geofinder
-
-Track your Android device.
+# Geo Tracker Server

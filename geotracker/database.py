@@ -42,7 +42,7 @@ class Database:
             cursor.execute("""
               INSERT INTO positions (device_id, latitude, longitude, timestamp)
                 VALUES (:device_id, :latitude, :longitude, :timestamp)""",
-                           position)
+                           (position.device_id, position.latitude, position.longitude, position.timestamp))
             conn.commit()
         except Exception as e:
             conn.rollback()
@@ -60,7 +60,6 @@ class Database:
                 FROM positions pos
                 JOIN (SELECT device_id, MAX(timestamp) AS max_timestamp FROM positions WHERE timestamp > ? GROUP BY device_id) new_pos
                   ON pos.device_id = new_pos.device_id AND pos.timestamp = new_pos.max_timestamp
-                ORDER BY timestamp DESC
                 """, (min_timestamp,))
             positions = cursor.fetchall()
             conn.commit()

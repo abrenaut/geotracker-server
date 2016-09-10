@@ -2,14 +2,17 @@
 
 from urlparse import urljoin
 from flask import render_template, url_for, request, abort, jsonify
-from app import app, socketio, update_pos_interval
-from tasks import update_positions, store_position
+from app import app, socketio, update_pos_interval, database
+from geotracker.position import Position
+import datetime
+import tasks
 
-update_pos_task = None
+update_pos_task = tasks.UpdatePositionTask(update_pos_interval)
 
 
 @app.template_global()
 def static_url_for(filename):
+    # Transform relative URLs to CDN URLs
     static_url = app.config.get('STATIC_URL')
 
     if static_url:
@@ -20,21 +23,36 @@ def static_url_for(filename):
 
 @socketio.on('connect')
 def connect():
-    global update_pos_task
-
-    if not update_pos_task:
-        print 'go'
-        update_pos_task = socketio.start_background_task(target=update_positions, interval=update_pos_interval)
+    # Launch the update positions task once a user is connected
+    if not update_pos_task.is_started():
+        update_pos_task.start()
 
 
 @app.route('/')
 def render_map():
-    return render_template('map.html')
+    # Show the positions recorded recently to the user
+    now = datetime.datetime.now()
+    min_date = now - datetime.timedelta(days=1)
+    min_timestamp = min_date.strftime("%s")
+
+    positions = database.get_last_positions(min_timestamp)
+
+    return render_template('map.html', positions=positions)
 
 
 @app.route('/api/1.0/positions', methods=['POST'])
 def store_position():
     if not request.json:
         abort(400)
-    store_position.delay(request.json)
+
+    position = Position.from_dict(request.json)
+    if not position:
+        abort(400)
+
+    # Add the position to the list of new positions to display to users
+    update_pos_task.new_positions.append(position)
+
+    # Store the position asynchronously
+    tasks.store_position.delay(position)
+
     return jsonify({}), 202
