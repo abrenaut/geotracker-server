@@ -7,7 +7,8 @@ $(document).ready(function () {
     map = createMap('map');
 
     // Create the web socket
-    var socket = io.connect('//' + document.domain + ':' + location.port);
+    var socketioPath = $('#map').data('socketio-path');
+    var socket = io.connect('//' + document.domain + ':' + location.port, {'path': socketioPath});
 
     // Handle position update
     socket.on('positions_update', updatePositions);
@@ -20,7 +21,7 @@ $(document).ready(function () {
  */
 function createMap(mapID) {
 
-    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var osmUrl = '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
     var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 12, attribution: osmAttrib});
 

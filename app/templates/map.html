@@ -12,6 +12,6 @@
 {% block content %}
 
     <!-- Leaflet map -->
-    <div id="map" data-initial-positions='{{ positions|tojson }}'></div>
+    <div id="map" data-initial-positions='{{ positions|tojson }}' data-socketio-path="{{ socketio_path }}"></div>
 
 {% endblock %}

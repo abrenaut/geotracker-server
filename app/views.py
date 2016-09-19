@@ -2,7 +2,7 @@
 
 from urlparse import urljoin
 from flask import render_template, url_for, request, abort, jsonify
-from app import app, socketio, update_pos_interval, database
+from app import app, socketio, update_pos_interval, database, socketio_path
 from geotracker.position import Position
 import datetime
 import tasks
@@ -37,7 +37,7 @@ def render_map():
 
     positions = database.get_last_positions(min_timestamp)
 
-    return render_template('map.html', positions=positions)
+    return render_template('map.html', positions=positions, socketio_path=socketio_path)
 
 
 @app.route('/api/1.0/positions', methods=['POST'])

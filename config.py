@@ -9,3 +9,6 @@ DATABASE = 'positions.db'
 
 # The number of milliseconds between each positions update
 UPDATE_POSITION_INTERVAL = 2000
+
+# A custom socketio path
+SOCKETIO_PATH = '/geotracker_socket.io'
