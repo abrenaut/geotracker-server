@@ -34,3 +34,11 @@ class TestDatabase(unittest.TestCase):
         self.assertEquals(last_positions[0]['device_id'], 'a')
         self.assertEquals(last_positions[1]['device_id'], 'b')
         self.assertEquals(last_positions[0]['timestamp'], 3)
+
+    def test_get_positions(self):
+        database.store_position(Position('a', 0, 0, 2))
+        database.store_position(Position('a', 0, 0, 3))
+
+        positions = database.get_positions('a')
+
+        self.assertEquals(len(positions), 2)

@@ -5,19 +5,26 @@ from app import celery, database, socketio
 
 @celery.task
 def store_position(position):
+    # Store the position asynchronously
     database.store_position(position)
 
 
 class UpdatePositionTask:
+    """
+    Starts a background task that new devices positions to clients
+    """
+
     def __init__(self, interval):
         self.interval = interval
         self.task = None
         self.new_positions = []
 
     def is_started(self):
+        # Is the background task already created
         return self.task is not None
 
     def start(self):
+        # Start the background task that send new positions to clients
         self.task = socketio.start_background_task(target=self.run)
 
     def run(self):

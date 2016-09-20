@@ -70,3 +70,20 @@ class Database:
             conn.close()
 
         return positions
+
+    def get_positions(self, device_id):
+        conn = sqlite3.connect(self.database)
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                """SELECT pos.latitude, pos.longitude FROM positions pos WHERE device_id = ?""",
+                (device_id,))
+            positions = cursor.fetchall()
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+
+        return positions

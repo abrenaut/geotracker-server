@@ -2,6 +2,7 @@
 
 from urlparse import urljoin
 from flask import render_template, url_for, request, abort, jsonify
+from flask_socketio import emit
 from app import app, socketio, update_pos_interval, database, socketio_path
 from geotracker.position import Position
 import datetime
@@ -12,7 +13,7 @@ update_pos_task = tasks.UpdatePositionTask(update_pos_interval)
 
 @app.template_global()
 def static_url_for(filename):
-    # Transform relative URLs to CDN URLs
+    # Transform relative URLs to CDN URLs if a CDN is configured
     static_url = app.config.get('STATIC_URL')
 
     if static_url:
@@ -28,6 +29,13 @@ def connect():
         update_pos_task.start()
 
 
+@socketio.on('get_route')
+def show_route(device_id):
+    # Send the device previous positions
+    waypoints = database.get_positions(device_id)
+    emit('show_route', {'waypoints': waypoints})
+
+
 @app.route('/')
 def render_map():
     # Show the positions recorded recently to the user
@@ -36,7 +44,6 @@ def render_map():
     min_timestamp = min_date.strftime("%s")
 
     positions = database.get_last_positions(min_timestamp)
-
     return render_template('map.html', positions=positions, socketio_path=socketio_path)
 
 
