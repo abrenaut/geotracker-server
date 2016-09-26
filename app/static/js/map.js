@@ -27,13 +27,18 @@ function createMap(mapID) {
 
     var osmUrl = '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-    var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 12, attribution: osmAttrib});
+    var osm = new L.TileLayer(osmUrl, {attribution: osmAttrib});
 
     map = new L.Map(mapID);
     map.setView([51.505, -0.09], 13);
     map.addLayer(osm);
 
     updatePositions(initialPositions);
+
+    // Update the zoom to fit user marker
+    if(userDeviceId in markers) {
+        map.panTo(markers[userDeviceId].getLatLng());
+    }
 
     return map;
 
@@ -52,20 +57,9 @@ function updatePositionsFromData(data) {
  * @param positions
  */
 function updatePositions(positions) {
-    var markerArray = [];
     var positionsLength = positions.length;
     for (var i = 0; i < positionsLength; i++) {
-        markerArray.push(updatePosition(positions[i]))
-    }
-
-    // Update the zoom to fit user marker
-    if(userDeviceId in markers) {
-        map.panTo(markers[userDeviceId].getLatLng());
-    }
-    // Update the zoom to fit all the markers
-    else if (markerArray.length > 0) {
-        var markerGroup = L.featureGroup(markerArray);
-        map.fitBounds(markerGroup.getBounds());
+        updatePosition(positions[i]);
     }
 }
 
