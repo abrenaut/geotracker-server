@@ -44,7 +44,8 @@ def render_map():
     min_timestamp = min_date.strftime("%s")
 
     positions = database.get_last_positions(min_timestamp)
-    return render_template('map.html', positions=positions, socketio_path=socketio_path)
+    return render_template('map.html', positions=positions, socketio_path=socketio_path,
+                           user_device_id=request.args.get('device_id', ''))
 
 
 @app.route('/api/1.0/positions', methods=['POST'])

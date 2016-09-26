@@ -58,8 +58,12 @@ function updatePositions(positions) {
         markerArray.push(updatePosition(positions[i]))
     }
 
+    // Update the zoom to fit user marker
+    if(userDeviceId in markers) {
+        map.panTo(markers[userDeviceId].getLatLng());
+    }
     // Update the zoom to fit all the markers
-    if (markerArray.length > 0) {
+    else if (markerArray.length > 0) {
         var markerGroup = L.featureGroup(markerArray);
         map.fitBounds(markerGroup.getBounds());
     }

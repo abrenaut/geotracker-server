@@ -11,6 +11,7 @@
 
         var initialPositions = {{ positions|tojson }};
         var socketioPath = "{{ socketio_path }}";
+        var userDeviceId = "{{ user_device_id }}";
 
     </script>
     <script src="{{ static_url_for(filename='js/map.js') }}"></script>
