@@ -1,5 +1,5 @@
 flask
 flask-socketio
-celery
+celery==4.0.0
 eventlet
 redis

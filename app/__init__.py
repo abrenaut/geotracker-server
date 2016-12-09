@@ -46,13 +46,16 @@ class ReverseProxied(object):
 
 app = Flask(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
-app.config.from_object('config')
 
-# Override config if needed
-if 'GEOTRACKER_SETTINGS' in environ:
-    app.config.from_envvar('GEOTRACKER_SETTINGS')
+app.config.update(dict(
+        STATIC_URL=environ.get('STATIC_URL', ''),
+        UPDATE_POSITION_INTERVAL=environ.get('UPDATE_POSITION_INTERVAL', 2000),
+        DATABASE=environ.get('DATABASE', 'positions.db'),
+        AMQP_URL=environ.get('AMQP_URL', 'amqp://guest@rabbitmq:5672//'),
+        SOCKETIO_PATH=environ.get('SOCKETIO_PATH', '/geotracker_socket.io')
+))
 
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery = Celery(app.name, broker=app.config['AMQP_URL'])
 celery.conf.update(app.config)
 
 database = Database(app.config['DATABASE'])
@@ -61,7 +64,7 @@ database.init()
 socketio_path = app.config['SOCKETIO_PATH']
 socketio = SocketIO(app, path=socketio_path)
 
-update_pos_interval = app.config['UPDATE_POSITION_INTERVAL'] / 1000
+update_pos_interval = int(app.config['UPDATE_POSITION_INTERVAL']) / 1000
 
 from app import views
 

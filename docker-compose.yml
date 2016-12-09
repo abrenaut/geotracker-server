@@ -1,0 +1,18 @@
+rabbitmq:
+  image: rabbitmq:latest
+
+web:
+  build: .
+  volumes:
+    - .:/app/
+  environment:
+    STATIC_URL: ""
+    UPDATE_POSITION_INTERVAL: 2000
+    DATABASE: "positions.db"
+    SOCKETIO_PATH: "/geotracker_socket.io"
+    AMQP_URL: "amqp://guest@rabbitmq:5672/"
+  ports:
+    - "5000:5000"
+  links:
+    - rabbitmq
+  command: python -u run.py

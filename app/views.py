@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from urlparse import urljoin
+from urllib.parse import urljoin
 from flask import render_template, url_for, request, abort, jsonify
 from flask_socketio import emit
-from app import app, socketio, update_pos_interval, database, socketio_path
+from app import app, socketio, update_pos_interval, database, socketio_path, tasks
 from geotracker.position import Position
 import datetime
-import tasks
+
 
 update_pos_task = tasks.UpdatePositionTask(update_pos_interval)
 
